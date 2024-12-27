@@ -1,0 +1,301 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>AXIS协议学习记录-1 | PLMaple's blog</title><meta name="author" content="PLMaple"><meta name="copyright" content="PLMaple"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="AXIS协议学习记录-1AXIS基本概念传输过程简单的两拍握手协议，简单的数据流通信（stream），规范的要求中大部分信号都是非必须的，复杂功能需要多种实体components参与。 当TVALID与TREADY都置位（asserted）时完成一次Transfer。 数据单元分级 Byte，AXIS的最小数据单元为字节 Transfer，一次传输事件，对应位宽数据量。对应一组TVALID和TRE">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AXIS协议学习记录-1">
+<meta property="og:url" content="http://example.com/2024/12/16/axi-1/index.html">
+<meta property="og:site_name" content="PLMaple&#39;s blog">
+<meta property="og:description" content="AXIS协议学习记录-1AXIS基本概念传输过程简单的两拍握手协议，简单的数据流通信（stream），规范的要求中大部分信号都是非必须的，复杂功能需要多种实体components参与。 当TVALID与TREADY都置位（asserted）时完成一次Transfer。 数据单元分级 Byte，AXIS的最小数据单元为字节 Transfer，一次传输事件，对应位宽数据量。对应一组TVALID和TRE">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s21.ax1x.com/2024/11/12/pAcos76.jpg">
+<meta property="article:published_time" content="2024-12-16T09:24:35.000Z">
+<meta property="article:modified_time" content="2024-12-16T09:24:35.000Z">
+<meta property="article:author" content="PLMaple">
+<meta property="article:tag" content="cocotb">
+<meta property="article:tag" content="AMBA">
+<meta property="article:tag" content="axis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s21.ax1x.com/2024/11/12/pAcos76.jpg"><link rel="shortcut icon" href="https://s21.ax1x.com/2024/11/12/pAco7Af.png"><link rel="canonical" href="http://example.com/2024/12/16/axi-1/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: false,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'AXIS协议学习记录-1',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  isShuoshuo: false
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg" style="background-image: url(https://s21.ax1x.com/2024/11/12/pAcoctO.png);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://s21.ax1x.com/2024/11/12/pAcos76.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">7</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src="https://s21.ax1x.com/2024/11/12/pAco7Af.png" alt="Logo"><span class="site-name">PLMaple's blog</span></a><a class="nav-page-title" href="/"><span class="site-name">AXIS协议学习记录-1</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">AXIS协议学习记录-1</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-12-16T09:24:35.000Z" title="发表于 2024-12-16 17:24:35">2024-12-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-12-16T09:24:35.000Z" title="更新于 2024-12-16 17:24:35">2024-12-16</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/FPGA%E5%AD%A6%E4%B9%A0/">FPGA学习</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">751</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>2分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="container post-content" id="article-container"><h1 id="AXIS协议学习记录-1"><a href="#AXIS协议学习记录-1" class="headerlink" title="AXIS协议学习记录-1"></a>AXIS协议学习记录-1</h1><h2 id="AXIS基本概念"><a href="#AXIS基本概念" class="headerlink" title="AXIS基本概念"></a>AXIS基本概念</h2><h3 id="传输过程"><a href="#传输过程" class="headerlink" title="传输过程"></a>传输过程</h3><p>简单的两拍握手协议，简单的数据流通信（stream），规范的要求中大部分信号都是非必须的，复杂功能需要多种实体components参与。</p>
+<p>当TVALID与TREADY都置位（asserted）时完成一次Transfer。</p>
+<h3 id="数据单元分级"><a href="#数据单元分级" class="headerlink" title="数据单元分级"></a>数据单元分级</h3><ol>
+<li>Byte，AXIS的最小数据单元为字节</li>
+<li>Transfer，一次传输事件，对应位宽数据量。对应一组TVALID和TREADY的两拍握手</li>
+<li>Packet，传输任意量的字节，由Transfer组成，其中Transfer对应的所有数据为了保持对齐，可包含NULL字节。Packet对应了一次TLAST事件（TLAST指明Packet的边界），Packet与AXI的Butst类似。</li>
+<li>Frame，包含数个Packet。</li>
+</ol>
+<h3 id="数据字节类型"><a href="#数据字节类型" class="headerlink" title="数据字节类型"></a>数据字节类型</h3><ol>
+<li>Data byte，传输数据。</li>
+<li>Position byte，占位符，标识相对位置，需要搭配TSTRB信号使用。</li>
+<li>Null byte，用于对齐的inserted byte。通过TKEEP信号标识。</li>
+</ol>
+<h2 id="Interconnect"><a href="#Interconnect" class="headerlink" title="Interconnect"></a>Interconnect</h2><p>AXIS中的设备主要为Interconnect和Transimitter和Receiver组成，Interconnect实现了所有的总线管理需求，通常可以使用子模块单独完成某些功能。VIVADO IP核中AXIS Interconnect结构图示如下，图源VIVADO文档PG035</p>
+<figure style="text-align: center">
+   <img alt="interconnect结构图" src="/2024/12/16/axi-1/axis_interconnect.png">
+   <figcaption>interconnect结构图</figcaption>
+</figure>
+
+<ol>
+<li><p>Interconnect<br>用于连接多个Transimitter和Receiver，可以进行数据的upsizing、downsizing，merging等，主要负责管理总线，进行总线的仲裁。为各个设备提供独立的接口，集成位宽转化。</p>
+</li>
+<li><p>Switch<br>与Interconnect类似，连接多个Transimitter和Receiver，可以进行总线仲裁，但各个接口保持一致，不对数据进行处理，Interconnect的子集。</p>
+</li>
+<li><p>Subset Conveter（Xilinx Vivado Repository）或 adapter<br>进行两个AXIS接口的转化，主要进行数据核控制信号的位宽变化等。</p>
+</li>
+<li><p>CLK Converter<br>AXIS通信过程仅是简单的两拍握手，仅在同一时钟域内可以保证通信，若要进行不同时钟域的通信需要使用Clock Converter来匹配时钟域，如低速到高速延迟数据传输，高速到低速使用异步FIFO缓存数据。</p>
+</li>
+</ol>
+<h2 id="其他模块"><a href="#其他模块" class="headerlink" title="其他模块"></a>其他模块</h2><ol>
+<li><p>Broadcaster<br>实现一对多的AXIS接口复用。（一个Slave接口对应多个Master接口）。因为AXIS信号包含TDEST和TID信号，没有办法直接进行广播操作，需要借助独立模块实现该功能。</p>
+<figure style="text-align: center">
+<img alt="Broadcaster" src="/2024/12/16/axi-1/broadcaster.png" width="70%">
+</figure>
+</li>
+<li><p>mux<br>multiplexer，多路选择器，多个SI（进），一个MI（出），以及用于选路的控制信号。</p>
+<figure style="text-align: center">
+<img alt="多路选择器" src="/2024/12/16/axi-1/mux.png" width="45%">
+</figure>
+</li>
+<li><p>demux<br>demultiplexer，多路分配器，一个SI（进），多个MI（出），以及用于选路的控制信号。</p>
+<figure style="text-align: center">
+<img alt="多路分配器" src="/2024/12/16/axi-1/demux.png" width="45%">
+</figure></li>
+</ol>
+<h2 id="仲裁算法-Vivado-IP"><a href="#仲裁算法-Vivado-IP" class="headerlink" title="仲裁算法(Vivado IP)"></a>仲裁算法(Vivado IP)</h2><p>仲裁算法是针对多个S入口争用同一M出口时的问题。</p>
+<ul>
+<li>Round-Robin: 按端口数量分片，若当前端口没有任务，则将时间片顺延给下一个端口。</li>
+<li>True Round-Robin: 对所有active的端口进行等权值的时间分片。</li>
+<li>Fixed-Priority: 固定优先级调度，S00接口优先级最高，S15优先级最低。</li>
+</ul>
+<h2 id="cocotbext-axi-工具包的AXIS部分"><a href="#cocotbext-axi-工具包的AXIS部分" class="headerlink" title="cocotbext-axi 工具包的AXIS部分"></a>cocotbext-axi 工具包的AXIS部分</h2><p>AXIS部分中含有四个主要的类，<code>AxiStreamSource</code>, <code>AxisStreamSink</code>, <code>AxisStreamMonitor</code> and <code>AxisStreamBus</code>。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://github.com/alexforencich/cocotbext-axi">cocotbext-axi GitHub repository</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.amd.com/v/u/en-US/pg035_axis_interconnect">PG035 axis interconnect</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.amd.com/r/en-US/pg085-axi4stream-infrastructure">PG085 axi4stream infrastructure</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/ihi0051/b/?lang=en">INI0051B AMBA AXIS Stream Protocol SPEC</a></li>
+</ol>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/cocotb/">cocotb</a><a class="post-meta__tags" href="/tags/AMBA/">AMBA</a><a class="post-meta__tags" href="/tags/axis/">axis</a></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/12/19/MemoryOfFPGA/" title="FPGA存储资源"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">FPGA存储资源</div></div><div class="info-2"><div class="info-item-1">FPGA存储资源可以用作存储功能的资源 FF（Flip-Flop）触发器资源大部分情况作为寄存器使用。  BRAM（Block RAM）Block RAM是集成在FPGA的片上资源，称为块RAM，简称为BRAM，在Xilinx FPGA中，每一个BRAM Block可以分为两个小块，以该小块为最小单元可以组合形成需求大小的RAM。  LUT  distributed RAM，分布式RAM，区别于Block RAM SRL（Shift Register LUT），LUT级联形成的移位寄存器LUT本身就是用于模拟逻辑电路真值表的高速RAM，distributed RAM与BRAM相比速度更快，但由于LUT资源有限，在大容量的RAM空间需求问题上表现不如集成的BRAM。    移位寄存器相比于通过触发器构成的多个独立寄存器，灵活性较差（如不能对单个寄存器进行置为或者复位操作），综合工具通常会将单纯的移位寄存器（不涉及复杂操作）综合为LUT级联形成的SRL，移位寄存器主要用于FIFO，可以极大的减少资源消耗，但相比于使用RAM构建的FIFO，SRL...</div></div></div></a><a class="pagination-related" href="/2024/11/27/SpinalHDL-2/" title="SpinalHDL 经典交通灯（状态机）"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">SpinalHDL 经典交通灯（状态机）</div></div><div class="info-2"><div class="info-item-1">使用SpinalHDL与cocotb完成经典交通灯控制器设计需求分析 设计需求 十字路口东西、南北各有红、黄、绿指示灯，其中绿灯、黄灯和红灯的持续时间分别为 40s、5s 和 45s。对应状态机的四个状态 s0: 持续40s，东西绿灯亮，红灯和黄灯灭；南北绿灯和黄灯灭，红灯亮。 s1：持续5s，东西绿灯和红灯灭，黄灯亮；南北绿灯和黄灯灭，红灯亮。 s2：持续40s，东西绿灯和黄灯灭，红灯亮；南北绿灯亮，红灯和黄灯灭。 s3：持续5s，东西绿灯和黄灯灭，红灯亮；南北绿灯和红灯灭，黄灯亮。   添加检修功能，由单独的检修信号控制（开关量），从任何状态都可以进入检修状态，检修时间不定，但是检修结束后延迟5秒进入S0状态。 s4_0: 检修状态，红绿灯全部保持长亮，退出时开始启动定时器倒计时。   添加附加状态，通过触发信号控制，在正常工作状态下，一旦触发附加状态，当前状态会在结束后延迟30s再进入下一个状态（插入一个额外状态）。 s5_0: 保持30s，s0 -&gt; s5_0 -&gt; s1 s5_1: 保持30s，s1 -&gt; s5_1 -&gt; s2 s5_2:...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/11/26/SpinalHDL-1/" title="SpinalHDL 4位7段数码管模块"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-26</div><div class="info-item-2">SpinalHDL 4位7段数码管模块</div></div><div class="info-2"><div class="info-item-1">使用SpinalHDL编写7段数码管模块，并使用cocotb进行仿真验证实验环境 scala: 2.11.12 sbt script version: 1.10.5 Vivado 2023.2 cocotb 1.9.0  数码管扫描程序Verilog描述12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061module scan_led_hex_disp_4(    input clk, rst,         /* 100MHz时钟与复位 */    input [3:0] hex0, hex1, hex2, hex3, /* 显存 */    input [3:0] dp,         /* 小数点 */    output reg [3:0] an,    /* 片选信号 */    output reg [7:0] sseg   /* 八段数码管接口 */    );    localparam...</div></div></div></a><a class="pagination-related" href="/2024/11/27/SpinalHDL-2/" title="SpinalHDL 经典交通灯（状态机）"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-27</div><div class="info-item-2">SpinalHDL 经典交通灯（状态机）</div></div><div class="info-2"><div class="info-item-1">使用SpinalHDL与cocotb完成经典交通灯控制器设计需求分析 设计需求 十字路口东西、南北各有红、黄、绿指示灯，其中绿灯、黄灯和红灯的持续时间分别为 40s、5s 和 45s。对应状态机的四个状态 s0: 持续40s，东西绿灯亮，红灯和黄灯灭；南北绿灯和黄灯灭，红灯亮。 s1：持续5s，东西绿灯和红灯灭，黄灯亮；南北绿灯和黄灯灭，红灯亮。 s2：持续40s，东西绿灯和黄灯灭，红灯亮；南北绿灯亮，红灯和黄灯灭。 s3：持续5s，东西绿灯和黄灯灭，红灯亮；南北绿灯和红灯灭，黄灯亮。   添加检修功能，由单独的检修信号控制（开关量），从任何状态都可以进入检修状态，检修时间不定，但是检修结束后延迟5秒进入S0状态。 s4_0: 检修状态，红绿灯全部保持长亮，退出时开始启动定时器倒计时。   添加附加状态，通过触发信号控制，在正常工作状态下，一旦触发附加状态，当前状态会在结束后延迟30s再进入下一个状态（插入一个额外状态）。 s5_0: 保持30s，s0 -&gt; s5_0 -&gt; s1 s5_1: 保持30s，s1 -&gt; s5_1 -&gt; s2 s5_2:...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://s21.ax1x.com/2024/11/12/pAcos76.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">PLMaple</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">7</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/ZiFengQiao"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#AXIS%E5%8D%8F%E8%AE%AE%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95-1"><span class="toc-number">1.</span> <span class="toc-text">AXIS协议学习记录-1</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#AXIS%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">1.1.</span> <span class="toc-text">AXIS基本概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%A0%E8%BE%93%E8%BF%87%E7%A8%8B"><span class="toc-number">1.1.1.</span> <span class="toc-text">传输过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%8D%95%E5%85%83%E5%88%86%E7%BA%A7"><span class="toc-number">1.1.2.</span> <span class="toc-text">数据单元分级</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%AD%97%E8%8A%82%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.1.3.</span> <span class="toc-text">数据字节类型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Interconnect"><span class="toc-number">1.2.</span> <span class="toc-text">Interconnect</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E6%A8%A1%E5%9D%97"><span class="toc-number">1.3.</span> <span class="toc-text">其他模块</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%B2%E8%A3%81%E7%AE%97%E6%B3%95-Vivado-IP"><span class="toc-number">1.4.</span> <span class="toc-text">仲裁算法(Vivado IP)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cocotbext-axi-%E5%B7%A5%E5%85%B7%E5%8C%85%E7%9A%84AXIS%E9%83%A8%E5%88%86"><span class="toc-number">1.5.</span> <span class="toc-text">cocotbext-axi 工具包的AXIS部分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-number">1.6.</span> <span class="toc-text">参考资料</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/21/cobs-1/" title="Consistent Overhead Byte Stuffing学习">Consistent Overhead Byte Stuffing学习</a><time datetime="2024-12-21T06:30:26.000Z" title="发表于 2024-12-21 14:30:26">2024-12-21</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/20/pytest-1/" title="pytest学习笔记-1">pytest学习笔记-1</a><time datetime="2024-12-20T04:04:53.000Z" title="发表于 2024-12-20 12:04:53">2024-12-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/19/MemoryOfFPGA/" title="FPGA存储资源">FPGA存储资源</a><time datetime="2024-12-19T12:43:42.000Z" title="发表于 2024-12-19 20:43:42">2024-12-19</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/16/axi-1/" title="AXIS协议学习记录-1">AXIS协议学习记录-1</a><time datetime="2024-12-16T09:24:35.000Z" title="发表于 2024-12-16 17:24:35">2024-12-16</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/27/SpinalHDL-2/" title="SpinalHDL 经典交通灯（状态机）">SpinalHDL 经典交通灯（状态机）</a><time datetime="2024-11-27T04:58:02.000Z" title="发表于 2024-11-27 12:58:02">2024-11-27</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent;"><div id="footer-wrap"><div class="copyright">&copy;2024 By PLMaple</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+      
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = `%%{init:{ 'theme':'${theme}'}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (false) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

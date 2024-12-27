@@ -1,0 +1,286 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Consistent Overhead Byte Stuffing学习 | PLMaple's blog</title><meta name="author" content="PLMaple"><meta name="copyright" content="PLMaple"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Consistent Overhead Byte Stuffing学习简介Consistent Overhead Byte Stuffing(COBS)是一种实现串行链路上帧识别（数据透传）的编码算法，作者Stuart Cheshire在1997年发表的《Consistent Overhead Byte Stuffing》的技术报告中首次提出。 在常见的数据透传实现，如PPP协议，PPP协议通过开">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Consistent Overhead Byte Stuffing学习">
+<meta property="og:url" content="http://example.com/2024/12/21/cobs-1/index.html">
+<meta property="og:site_name" content="PLMaple&#39;s blog">
+<meta property="og:description" content="Consistent Overhead Byte Stuffing学习简介Consistent Overhead Byte Stuffing(COBS)是一种实现串行链路上帧识别（数据透传）的编码算法，作者Stuart Cheshire在1997年发表的《Consistent Overhead Byte Stuffing》的技术报告中首次提出。 在常见的数据透传实现，如PPP协议，PPP协议通过开">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s21.ax1x.com/2024/11/12/pAcos76.jpg">
+<meta property="article:published_time" content="2024-12-21T06:30:26.000Z">
+<meta property="article:modified_time" content="2024-12-21T06:30:26.000Z">
+<meta property="article:author" content="PLMaple">
+<meta property="article:tag" content="COBS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s21.ax1x.com/2024/11/12/pAcos76.jpg"><link rel="shortcut icon" href="https://s21.ax1x.com/2024/11/12/pAco7Af.png"><link rel="canonical" href="http://example.com/2024/12/21/cobs-1/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: false,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Consistent Overhead Byte Stuffing学习',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  isShuoshuo: false
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg" style="background-image: url(https://s21.ax1x.com/2024/11/12/pAcoctO.png);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://s21.ax1x.com/2024/11/12/pAcos76.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">7</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src="https://s21.ax1x.com/2024/11/12/pAco7Af.png" alt="Logo"><span class="site-name">PLMaple's blog</span></a><a class="nav-page-title" href="/"><span class="site-name">Consistent Overhead Byte Stuffing学习</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Consistent Overhead Byte Stuffing学习</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-12-21T06:30:26.000Z" title="发表于 2024-12-21 14:30:26">2024-12-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-12-21T06:30:26.000Z" title="更新于 2024-12-21 14:30:26">2024-12-21</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">1.8k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>6分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="container post-content" id="article-container"><h1 id="Consistent-Overhead-Byte-Stuffing学习"><a href="#Consistent-Overhead-Byte-Stuffing学习" class="headerlink" title="Consistent Overhead Byte Stuffing学习"></a>Consistent Overhead Byte Stuffing学习</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Consistent Overhead Byte Stuffing(COBS)是一种实现串行链路上帧识别（数据透传）的编码算法，作者<strong>Stuart Cheshire</strong>在1997年发表的《Consistent Overhead Byte Stuffing》的技术报告中首次提出。</p>
+<p>在常见的数据透传实现，如PPP协议，PPP协议通过开始和结束的标志字段Flag（0x7E）标识一帧的边界，因此对数据载荷包含的标志字段需要进行相应的转义，考虑最差的情况，所有的净荷都是标志字符，会直接引入100%的插入字符，HDLC的零比特填充法最坏的情况也会引入20%的插入信息。而且，由于头尾都有标志字段，接收端要准备至少最大帧长长度的缓存才能保证正常接收。在ISM频段工作的许多协议，受此影响一定程度上大大降低了最大帧长。</p>
+<p>在网络设备中，数据是突发且随机的，传统的数据链路层协议的透传方案会导致抖动且无法预测的额外开销。</p>
+<h2 id="算法原理"><a href="#算法原理" class="headerlink" title="算法原理"></a>算法原理</h2><ol>
+<li>读取一个上层交付的数据包，在包末尾添加一个0x00（逻辑上添加）</li>
+<li>将数据按照所有的0x00字节进行分块，称为chunk（分成以0x00结尾的数据块，每个块只有一个0x00，若以0x00开头，则分为长度为1的chunk）</li>
+<li>COBS将每个chunk编码为变长的COBS码块，每个COBS码块开头有一个编码字节，指示原chunk的长度，并从COBS码块中去除最后的0x00<ul>
+<li>长度为n，且n小于等于254的chunk，映射为一个长度为n的chunk块，隐含一个0x00的结尾</li>
+<li>长度为n，且n大于254的chunk，会被映射为多个chunk块，完整的块，块首的编码为0xff，表示之后由254个不为0的数据，且后续一个块依然属于一个chunk</li>
+</ul>
+</li>
+<li>编码后每一个COBS码块都不包含0x00，之后就可以使用0x00来区分包的边界</li>
+<li>每一个COBS块只在块首包含一个编码用字节，这个编码字节指示的是该chunk包含的字节数，并将zero byte省略（implict）因为一个块最少包含1个长度（zero，表明这个分块只有一个zero，所以编码字节的范围为0x01~0xFE）<ul>
+<li>0x00: 不支持</li>
+<li>0x01：表示一个zero byte</li>
+<li>n: 表示后面有n-1个数据</li>
+<li>0xFF 表示后面后254个不以0结尾的数据（大于254的块分块结果，和后面的COBS code blocks是连续的，不在中间插入zero byte）</li>
+</ul>
+</li>
+<li>这样一个长度小于等于254的chunk可以都是无overhead的完成编码，只有当chunk大于254，编码字节为0xff时才会引入overhead</li>
+</ol>
+<h3 id="算法改进"><a href="#算法改进" class="headerlink" title="算法改进"></a>算法改进</h3><p>在使用一个编码字节表示长度，并隐含表示0，最差的情况是每254字节一个额外开销，在此基础上，如果保留部分编码字节的值用于其他用于，如表示结尾隐含两个0，或者表示结尾不隐含0，这样编码字节表示的长度变短，最差情况下的开销会增多，但根据数据分布，平均开销会相应下降。</p>
+<p>比如，在网络数据转发应用中，若COBS的净荷为IP数据报，在IP数据报中包含许多连0，使用一对二的编码字节甚至可以实现对数据的压缩。</p>
+<h2 id="数据链路层"><a href="#数据链路层" class="headerlink" title="数据链路层"></a>数据链路层</h2><h3 id="编码过程"><a href="#编码过程" class="headerlink" title="编码过程"></a>编码过程</h3><ol>
+<li>初始化长度为255的缓存（缓存的第一个字节为计数器）</li>
+<li>从字节流中读入一个字符（先不写入缓存），计数器加一</li>
+<li>若计数器达到255，进行步骤5</li>
+<li>若字符为0x00，进行步骤5，否则回到步骤2</li>
+<li>完成一个码块编码（编码字节为计数器，数据为缓存），向下传递，回到步骤1，否则进行步骤4</li>
+<li>完成数据编码后，末尾添加一个0x00分割包</li>
+</ol>
+<h3 id="解码过程"><a href="#解码过程" class="headerlink" title="解码过程"></a>解码过程</h3><h2 id="物理层"><a href="#物理层" class="headerlink" title="物理层"></a>物理层</h2><p>在数据链路层是按字节，区分不同的数据包，下发到物理层后还要完成按bit识别一帧数据，传统方法如高级数据链路控制协议（HDLC）使用的是零比特填充法进行转义。经过COBS编码的数据中本身就不会出现为0的字节，如果在物理层标识数据帧的话，在数据部分不会出现超过14个连零的情况（0b1000,0000,0000,0001），在数据帧之间使用两个字节(0b1000,0000,0000,0000)十五个连0标识边界，针对这个帧边界标识法，作者提出了异步与同步实现两种。</p>
+<ol>
+<li><p>同步COBS比特边界<br>在同步情况下，一帧数据发送完毕后，发送方循环发送0b1000,0000,0000,0000，表示线路的IDLE，当需要发送数据时，需要等待当前的边界标识发送完毕，最差的情况下会延迟16个bit的时间才能发送。</p>
+</li>
+<li><p>异步COBS比特边界<br>在异步的情况下，一帧数据发送完毕后，发送方在发送完0b1000,0000,0000,0000之后，继续发送0标识线路的IDLE，接收方当检测到超过15bit连零时判断接收成功，发送方将要发送数据时，再发送一个1bit告知将要发送数据。</p>
+</li>
+</ol>
+<h2 id="C语言实现"><a href="#C语言实现" class="headerlink" title="C语言实现"></a>C语言实现</h2><h3 id="编码程序"><a href="#编码程序" class="headerlink" title="编码程序"></a>编码程序</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">cobs_encode</span><span class="params">(<span class="type">uint8_t</span> *buf, <span class="type">int</span> size)</span> &#123;</span><br><span class="line">    <span class="type">uint8_t</span> ram[<span class="number">255</span>];</span><br><span class="line">    <span class="type">uint8_t</span> *cnt_num = (<span class="type">uint8_t</span> *) ram;</span><br><span class="line">    <span class="type">uint8_t</span> *ram_ptr = ram + <span class="number">1</span>;</span><br><span class="line">    <span class="type">uint8_t</span> *buf_ptr = buf;</span><br><span class="line">    <span class="type">uint8_t</span> *end = buf + size;</span><br><span class="line">    <span class="keyword">while</span> (buf_ptr &lt; end) &#123;</span><br><span class="line">        (*cnt_num)++;</span><br><span class="line">        <span class="keyword">if</span> (*buf_ptr == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">/* 遇到0字节，下发码块 */</span></span><br><span class="line">            phys_layer(ram, (<span class="type">int</span>) *cnt_num);</span><br><span class="line">            <span class="comment">/* 码块初始化 */</span></span><br><span class="line">            *cnt_num = <span class="number">0</span>;</span><br><span class="line">            ram_ptr = ram + <span class="number">1</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">/* 不是0的数据可以写入缓存 */</span></span><br><span class="line">            *ram_ptr++ = *buf_ptr;</span><br><span class="line">            <span class="comment">/* 此时缓存中一共有cnt_num个有效数据，当数据个数为254时，下发 */</span></span><br><span class="line">            <span class="keyword">if</span> (*cnt_num == <span class="number">0xfe</span>) &#123;</span><br><span class="line">                (*cnt_num)++;</span><br><span class="line">                <span class="comment">/* 下发码块，清空缓存 */</span></span><br><span class="line">                phys_layer(ram, (<span class="type">int</span>) *cnt_num);</span><br><span class="line">                <span class="comment">/* 码块初始化 */</span></span><br><span class="line">                *cnt_num = <span class="number">0</span>;</span><br><span class="line">                ram_ptr = ram + <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        buf_ptr++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/* 结束后直接将当前包下发（数据后添加的逻辑0） */</span></span><br><span class="line">    (*cnt_num)++;</span><br><span class="line">    phys_layer(ram, (<span class="type">int</span>) *cnt_num);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 传输0，标记数据包边界 */</span></span><br><span class="line">    ram[<span class="number">0</span>] = <span class="number">0x00</span>;</span><br><span class="line">    phys_layer(ram, <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="译码程序"><a href="#译码程序" class="headerlink" title="译码程序"></a>译码程序</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">cobs_decode</span><span class="params">(<span class="type">uint8_t</span> *buf, <span class="type">int</span> size)</span> &#123;</span><br><span class="line">    <span class="type">static</span> <span class="type">uint8_t</span> code_byte = <span class="number">0x00</span>;</span><br><span class="line">    <span class="type">static</span> <span class="type">uint8_t</span> ram [<span class="number">2048</span>] = &#123;<span class="number">0x00</span>&#125;;</span><br><span class="line">    <span class="type">static</span> <span class="type">uint8_t</span> *ram_ptr = ram;</span><br><span class="line">    <span class="keyword">typedef</span> <span class="class"><span class="keyword">enum</span> &#123;</span></span><br><span class="line">        STATE_IDLE = <span class="number">0</span>,</span><br><span class="line">        STATE_RECEIVE_1,</span><br><span class="line">        STATE_RECEIVE_2,</span><br><span class="line">        STATE_BLOCK_END,</span><br><span class="line">    &#125; <span class="type">state_t</span>;</span><br><span class="line">    <span class="type">static</span> <span class="type">state_t</span> state = STATE_IDLE;</span><br><span class="line"></span><br><span class="line">    <span class="type">uint8_t</span> *buf_ptr = buf;</span><br><span class="line">    <span class="type">uint8_t</span> *end = buf + size;</span><br><span class="line">    <span class="keyword">while</span> (buf_ptr &lt; end)&#123;</span><br><span class="line">        <span class="keyword">switch</span> (state) &#123;</span><br><span class="line">            <span class="keyword">case</span> STATE_IDLE:</span><br><span class="line">                <span class="keyword">if</span> (*buf_ptr != <span class="number">0x00</span>) &#123;</span><br><span class="line">                    code_byte = *buf_ptr;</span><br><span class="line">                    state = code_byte &lt; <span class="number">0xff</span> ? STATE_RECEIVE_1 : STATE_RECEIVE_2;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    state = STATE_IDLE;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> STATE_RECEIVE_1:</span><br><span class="line">                code_byte--;</span><br><span class="line">                *ram_ptr++ = *buf_ptr;</span><br><span class="line">                <span class="keyword">if</span> (code_byte == <span class="number">1</span>) &#123;</span><br><span class="line">                    *ram_ptr++ = <span class="number">0x00</span>;</span><br><span class="line">                    state = STATE_BLOCK_END;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> STATE_RECEIVE_2:</span><br><span class="line">                code_byte--;</span><br><span class="line">                *ram_ptr++ = *buf_ptr;</span><br><span class="line">                <span class="keyword">if</span> (code_byte == <span class="number">1</span>) &#123;</span><br><span class="line">                    state = STATE_BLOCK_END;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> STATE_BLOCK_END:</span><br><span class="line">                <span class="keyword">if</span> (*buf_ptr != <span class="number">0x00</span>) &#123;</span><br><span class="line">                    code_byte = *buf_ptr;</span><br><span class="line">                    state = code_byte &lt; <span class="number">0xff</span> ? STATE_RECEIVE_1 : STATE_RECEIVE_2;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123; <span class="comment">// 识别到数据包结束标志</span></span><br><span class="line">                    <span class="comment">// 去除添加的逻辑0</span></span><br><span class="line">                    ram_ptr--;</span><br><span class="line">                    <span class="comment">// 上报数据</span></span><br><span class="line">                    dl_layer(ram, (<span class="type">int</span>) (ram_ptr - ram));</span><br><span class="line">                    ram_ptr   = ram;</span><br><span class="line">                    code_byte = <span class="number">0x00</span>;</span><br><span class="line">                    state     = STATE_IDLE;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                state = STATE_IDLE;</span><br><span class="line">                ram_ptr   = ram;</span><br><span class="line">                code_byte = <span class="number">0x00</span>;</span><br><span class="line">                state     = STATE_IDLE;</span><br><span class="line">        &#125;</span><br><span class="line">        buf_ptr++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
+<li>Cheshire, Stuart; Baker, Mary (April 1999). “Consistent Overhead Byte Stuffing”. IEEE&#x2F;ACM Transactions on Networking. 7 (2): 159–172. CiteSeerX 10.1.1.108.3143. doi:10.1109&#x2F;90.769765. S2CID 47267776. Retrieved November 30, 2015.</li>
+</ol>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/COBS/">COBS</a></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2024/12/20/pytest-1/" title="pytest学习笔记-1"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">pytest学习笔记-1</div></div><div class="info-2"><div class="info-item-1">pytest学习笔记-1pytest测试框架pytest.main()命令执行后，pytest会自动检查目录下的py文件，按一定规则匹配执行。若要自定义规则则需要在当前目录下配备配置文件pytest.ini  模块 test_*.py *_test.py   类(测试用例) Test开头，没有__init__函数   方法 test_开头    自定义匹配规则示例 1234[pytest]python_files = demo_*.py	# 模块以demo_开头python_classes = Demo*	  # 类以Demo开头python_functions = demo_*	#...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://s21.ax1x.com/2024/11/12/pAcos76.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">PLMaple</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">7</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/ZiFengQiao"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Consistent-Overhead-Byte-Stuffing%E5%AD%A6%E4%B9%A0"><span class="toc-number">1.</span> <span class="toc-text">Consistent Overhead Byte Stuffing学习</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-number">1.1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86"><span class="toc-number">1.2.</span> <span class="toc-text">算法原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%97%E6%B3%95%E6%94%B9%E8%BF%9B"><span class="toc-number">1.2.1.</span> <span class="toc-text">算法改进</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82"><span class="toc-number">1.3.</span> <span class="toc-text">数据链路层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E7%A0%81%E8%BF%87%E7%A8%8B"><span class="toc-number">1.3.1.</span> <span class="toc-text">编码过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E7%A0%81%E8%BF%87%E7%A8%8B"><span class="toc-number">1.3.2.</span> <span class="toc-text">解码过程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%89%A9%E7%90%86%E5%B1%82"><span class="toc-number">1.4.</span> <span class="toc-text">物理层</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#C%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.5.</span> <span class="toc-text">C语言实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E7%A0%81%E7%A8%8B%E5%BA%8F"><span class="toc-number">1.5.1.</span> <span class="toc-text">编码程序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%91%E7%A0%81%E7%A8%8B%E5%BA%8F"><span class="toc-number">1.5.2.</span> <span class="toc-text">译码程序</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-number">1.6.</span> <span class="toc-text">参考资料</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/21/cobs-1/" title="Consistent Overhead Byte Stuffing学习">Consistent Overhead Byte Stuffing学习</a><time datetime="2024-12-21T06:30:26.000Z" title="发表于 2024-12-21 14:30:26">2024-12-21</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/20/pytest-1/" title="pytest学习笔记-1">pytest学习笔记-1</a><time datetime="2024-12-20T04:04:53.000Z" title="发表于 2024-12-20 12:04:53">2024-12-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/19/MemoryOfFPGA/" title="FPGA存储资源">FPGA存储资源</a><time datetime="2024-12-19T12:43:42.000Z" title="发表于 2024-12-19 20:43:42">2024-12-19</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/16/axi-1/" title="AXIS协议学习记录-1">AXIS协议学习记录-1</a><time datetime="2024-12-16T09:24:35.000Z" title="发表于 2024-12-16 17:24:35">2024-12-16</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/27/SpinalHDL-2/" title="SpinalHDL 经典交通灯（状态机）">SpinalHDL 经典交通灯（状态机）</a><time datetime="2024-11-27T04:58:02.000Z" title="发表于 2024-11-27 12:58:02">2024-11-27</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent;"><div id="footer-wrap"><div class="copyright">&copy;2024 By PLMaple</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+      
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = `%%{init:{ 'theme':'${theme}'}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (false) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
